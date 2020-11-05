@@ -116,7 +116,7 @@ class Coveralls:
     @staticmethod
     def load_config_from_travis():
         pr = os.environ.get('TRAVIS_PULL_REQUEST')
-        return 'travis-ci', os.environ.get('TRAVIS_JOB_ID'), random.randint(0,sys.maxsize), pr
+        return 'travis-ci', os.environ.get('TRAVIS_JOB_ID'), None, pr
 
     @staticmethod
     def load_config_from_semaphore():
@@ -204,6 +204,17 @@ class Coveralls:
         verify = not bool(os.environ.get('COVERALLS_SKIP_SSL_VERIFY'))
         response = requests.post(endpoint, files={'json_file': json_string},
                                  verify=verify)
+
+        # check and adjust/resubmit if submission looks like it 
+        # failed due to resubmission (non-unique)
+        if response.status_code == 422:
+            if not json_string['service_number']:
+                json_string['service_number'] = random.randint(0,sys.maxsize)
+            json_string['service_job_id']='{}-{}'.format(json_string['service_job_id'],json_string['service_number'])
+        
+            response = requests.post(endpoint, files={'json_file': json_string},
+                                 verify=verify)
+
         try:
             response.raise_for_status()
             return response.json()
