@@ -208,11 +208,11 @@ class Coveralls:
         # check and adjust/resubmit if submission looks like it 
         # failed due to resubmission (non-unique)
         if response.status_code == 422:
-            if not json_string['service_number']:
-                json_string['service_number'] = random.randint(0,sys.maxsize)
-            json_string['service_job_id']='{}-{}'.format(json_string['service_job_id'],json_string['service_number'])
+            if not self.config['service_number']:
+                self.config['service_number'] = random.randint(0,sys.maxsize)
+            self.config['service_job_id']='{}-{}'.format(self.config['service_job_id'],self.config['service_number'])
         
-            response = requests.post(endpoint, files={'json_file': json_string},
+            response = requests.post(endpoint, files={'json_file': self.create_report()},
                                  verify=verify)
 
         try:
