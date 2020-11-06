@@ -212,7 +212,7 @@ class Coveralls:
                 self.config['service_number'] = random.randint(0,sys.maxsize)
             self.config['service_job_id']='{}-{}'.format(self.config['service_job_id'],self.config['service_number'])
         
-            print('resubmitting with id {}'.self.config['service_job_id'])
+            print('resubmitting with id {}'.format(self.config['service_job_id']))
             response = requests.post(endpoint, files={'json_file': self.create_report()},
                                  verify=verify)
 
