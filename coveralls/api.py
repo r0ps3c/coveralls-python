@@ -213,7 +213,9 @@ class Coveralls:
             self.config['service_job_id']='{}-{}'.format(self.config['service_job_id'],self.config['service_number'])
         
             print('resubmitting with id {}'.format(self.config['service_job_id']))
-            response = requests.post(endpoint, files={'json_file': self.create_report()},
+            json_string = self.create_report()
+            log.warning(re.match(r'"service_job_id": "(.+?)"', json_string).group(0))
+            response = requests.post(endpoint, files={'json_file': json_string},
                                  verify=verify)
 
         try:
