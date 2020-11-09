@@ -210,12 +210,14 @@ class Coveralls:
         if response.status_code == 422:
             if not ('service_number' in self.config and self.config['service_number']):
                 self.config['service_number'] = random.randint(0,sys.maxsize)
+
             self.config['service_job_id']='{}-{}'.format(self.config['service_job_id'],self.config['service_number'])
+
+            # invalidate cached config
+            self._data = None
         
             print('resubmitting with id {}'.format(self.config['service_job_id']))
-            json_string = self.create_report()
-            log.warning(re.search(r'"service_job_id": "([^,]*)"', json_string).group(0))
-            response = requests.post(endpoint, files={'json_file': json_string},
+            response = requests.post(endpoint, files={'json_file': self.create_report()},
                                  verify=verify)
 
         try:
